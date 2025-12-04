@@ -96,10 +96,10 @@ The frontend will be available at **[http://localhost:3000](http://localhost:300
 todo/
 ├─ backend/          # FastAPI backend
 │  ├─ todoapp/
-│  │  ├─ main.py
-│  │  ├─ models.py
-│  │  ├─ schemas.py
-│  │  └─ ...
+│  │  ├─ api/
+│  │  ├─ database/
+│  │  ├─ ...
+│  ├─ main.py
 │  └─ requirements.txt
 └─ frontend/         # React frontend
    ├─ public/
