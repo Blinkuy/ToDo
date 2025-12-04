@@ -1,0 +1,55 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.card {
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    margin: 0;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.description {
+    margin: 0;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.date {
+    color: #999;
+    font-size: 12px;
+}
+
+.delete-button {
+    padding: 6px 10px;
+    background-color: #E94B35;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+}
+
+.delete-button:hover {
+    background-color: #d1402b;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
