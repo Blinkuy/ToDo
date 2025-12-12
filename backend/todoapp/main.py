@@ -1,13 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from fastapi.openapi.docs import get_swagger_ui_html
-
-import dotenv
-from os import getenv
-
-from todoapp.database.core import TaskORM
-from todoapp.database.models import Task
 
 from todoapp.api.task import router as task_router
 
