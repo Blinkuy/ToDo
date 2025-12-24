@@ -13,17 +13,21 @@ format:
 precommit:
 	uv run pre-commit run --all-files
 
-dc:
+compose-up:
 	docker compose up --build -d
 
-dcd:
+compose-down:
 	docker compose down
 
-dmigrate:
-	docker compose exec backend uv run alembic revision --autogenerate -m "init"
+migrate:
+	alembic revision --autogenerate -m "auto migration"
+	alembic upgrade head
 
-dmigrateup:
-	docker compose exec backend uv run alembic upgrade head
+downgrade:
+	alembic downgrade -1
 
-dtest:
-	docker compose exec backend uv run pytest
+upgrade:
+	alembic upgrade head
+
+setup: install compose-up upgrade run
+	@echo "setup completed"

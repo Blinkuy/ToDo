@@ -1,4 +1,4 @@
-from .base import BaseSchema
+from src.schemas.base import BaseSchema
 
 
 class UserCreateRequest(BaseSchema):

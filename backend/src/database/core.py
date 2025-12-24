@@ -1,9 +1,8 @@
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.database.models import Task
 from src.schemas.task import TaskCreateRequest
-
-from .models import Task
 
 
 class TaskRepository:

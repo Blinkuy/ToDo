@@ -1,50 +1,52 @@
-# tests/conftest.py
+import asyncio
+
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
 
-from src.database.deps import get_session
+from src.config import settings
 from src.database.models import Base
 from src.main import app
 
-TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
-
-engine = create_async_engine(
-    TEST_DB_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-
-TestingSessionLocal = async_sessionmaker(
-    bind=engine,
-    expire_on_commit=False,
-    autoflush=False,
-)
+TEST_DB_URL = settings.DATABASE_URL_TEST
 
 
-@pytest.fixture()
-async def session():
-    # Создаём таблицы (для in-memory SQLite — безопасно делать каждый раз)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    async with TestingSessionLocal() as s:
-        # Очищаем данные
-        async with engine.begin() as conn:
-            for table in reversed(Base.metadata.sorted_tables):
-                await conn.execute(text(f"DELETE FROM {table.name}"))
-        await s.commit()
-        yield s
+@pytest.fixture(scope="session")
+def event_loop():
+    loop = asyncio.get_event_loop()
+    yield loop
+    loop.close()
 
 
-@pytest.fixture()
-async def client(session):
-    async def override_get_session():
-        return session
+@pytest.fixture(scope="session")
+async def engine():
+    engine = create_async_engine(TEST_DB_URL, echo=False)
+    yield engine
+    await engine.dispose()
 
-    app.dependency_overrides[get_session] = override_get_session
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        yield ac
-    app.dependency_overrides.clear()
+
+@pytest.fixture(scope="session", autouse=True)
+async def apply_migrations(engine):
+    from alembic.config import Config
+
+    from alembic import command
+
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", TEST_DB_URL)
+
+    command.upgrade(alembic_cfg, "head")
+
+
+@pytest.fixture
+async def session(engine):
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with async_session() as session:
+        yield session
+        await session.rollback()
+
+
+@pytest.fixture
+async def client():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        yield client
