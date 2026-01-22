@@ -4,30 +4,32 @@ install:
 run:
 	uv run uvicorn src.main:app --reload
 
+makemigrations:
+	uv run alembic revision --autogenerate -m "$(MESSAGE)"
+
+migrate:
+	uv run alembic upgrade head
+
+rollback:
+	uv run alembic downgrade -1
+
+docker-up:
+	docker compose up --build -d
+
+docker-down:
+	docker compose down
+
 lint:
 	uv run ruff check .
 
 format:
-	uv run ruff format . 
+	uv run ruff format .
 
 precommit:
 	uv run pre-commit run --all-files
 
-compose-up:
-	docker compose up --build -d
+prerun: install docker-up migrate
+	@echo "Application is ready to run"
 
-compose-down:
-	docker compose down
-
-migrate:
-	alembic revision --autogenerate -m "auto migration"
-	alembic upgrade head
-
-downgrade:
-	alembic downgrade -1
-
-upgrade:
-	alembic upgrade head
-
-setup: install compose-up upgrade run
-	@echo "setup completed"
+kafka:
+	faststream run  src.consumer.app:app 

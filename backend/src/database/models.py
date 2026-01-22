@@ -31,6 +31,11 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    notifications: Mapped[list["Notification"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
 
 class Task(Base):
     __tablename__ = "task"
@@ -63,3 +68,35 @@ class Task(Base):
     user: Mapped["User"] = relationship(
         back_populates="tasks",
     )
+
+    notifications: Mapped[list["Notification"]] = relationship(
+        back_populates="task",
+        cascade="all, delete-orphan",
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notification"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    task_id: Mapped[int] = mapped_column(
+        ForeignKey("task.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    user: Mapped["User"] = relationship(back_populates="notifications")
+
+    task: Mapped["Task"] = relationship(back_populates="notifications")

@@ -1,3 +1,4 @@
+from src.database.models import User
 from src.schemas.base import BaseSchema
 
 
@@ -6,6 +7,6 @@ class UserCreateRequest(BaseSchema):
     password: str
 
 
-class UserResponse(BaseSchema):
+class UserResponse(BaseSchema[User]):
     id: int
     username: str
