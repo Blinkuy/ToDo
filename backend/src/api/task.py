@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.errors import ErrorDetail
 from src.database.core import TaskRepository
 from src.database.deps import get_session
+from src.producer.task_producer import publish_task_create
 from src.schemas.task import TaskCreateRequest, TaskResponse
 
 router = APIRouter(prefix="/task", tags=["Task"])
@@ -19,7 +20,7 @@ async def get_tasks(
         user_id=user_id,
     )
 
-    return [TaskResponse.from_orm_model(t) for t in tasks]
+    return [TaskResponse.from_orm_to_model(t) for t in tasks]
 
 
 @router.post("/add", response_model=TaskResponse)
@@ -27,12 +28,10 @@ async def add_task(
     task: TaskCreateRequest,
     session: AsyncSession = Depends(get_session),
 ):
-    task = await TaskRepository.add_one(
-        session=session,
-        task_data=task,
-    )
+    task = await TaskRepository.add_one(session=session, task_data=task, with_commit=True)
 
-    return TaskResponse.from_orm_model(task)
+    await publish_task_create(task.id)
+    return TaskResponse.from_orm_to_model(task)
 
 
 @router.delete("/delete")
@@ -40,7 +39,7 @@ async def delete_task(
     task_id: int,
     session: AsyncSession = Depends(get_session),
 ):
-    res = await TaskRepository.delete_one(session, task_id)
+    res = await TaskRepository.delete_one(session, task_id, with_commit=True)
 
     if res == 0:
         raise HTTPException(
