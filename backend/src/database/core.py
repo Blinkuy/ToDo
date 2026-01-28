@@ -95,8 +95,17 @@ class NotificationRepository:
     @staticmethod
     async def get_all(
         session: AsyncSession,
-    ) -> list[User]:
+    ) -> list[Notification]:
         stmt = select(Notification)
         result = await session.execute(stmt)
-
         return result.scalars().all()
+
+    @staticmethod
+    async def create_for_all_users(
+        session: AsyncSession,
+        task_id: int,
+    ) -> None:
+        users = await UserRepository.get_all(session)
+        notifications = [Notification(user_id=user.id, task_id=task_id) for user in users]
+        session.add_all(notifications)
+        await session.commit()

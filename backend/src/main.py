@@ -3,21 +3,21 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.notifications import router as notification_router
 from src.api.task import router as task_router
 from src.api.user import router as user_router
-from src.api.notifications import router as notification_router
+from src.broker import broker
 from src.config import settings
-from src.fs_broker import broker
+from src.loggin_config import setup_logging
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Broker up")
     await broker.start()
     yield
-    print("Broker down")
     await broker.stop()
 
+setup_logging()
 
 app = FastAPI(title="ToDoApp", lifespan=lifespan)
 

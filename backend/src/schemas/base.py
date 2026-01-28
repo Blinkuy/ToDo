@@ -11,5 +11,5 @@ class BaseSchema(BaseModel, Generic[M]):
     }
 
     @classmethod
-    def from_orm_to_model(cls: Type[T], obj: M):
+    def from_orm_to_schema(cls: Type[T], obj: M):
         return cls.model_validate(obj)

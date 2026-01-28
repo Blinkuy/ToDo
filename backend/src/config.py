@@ -34,6 +34,12 @@ class Settings(BaseSettings):
         description="Kafka broker url"
     )
 
+    # --- kafka topics ---
+    KAFKA_TOPIC_TASK_CREATED: str = Field(
+        default="task_created",
+        description="Kafka topic for task creation events"
+    )
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

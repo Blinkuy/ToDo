@@ -1,22 +1,18 @@
+from fastapi import Depends
 from faststream.kafka import KafkaRouter
-from sqlalchemy import select
 
-from src.database.database import AsyncSessionLocal
-from src.database.models import Notification, User
+from src.config import settings
+from src.database.core import NotificationRepository
+from src.database.deps import get_session
+from src.schemas.message import TaskMessage
 
 router = KafkaRouter()
 
 
-@router.subscriber("task_created")
-async def handle_task_created(message: dict):
-    print("On handle")
-    task_id = message["task_id"]
+@router.subscriber(settings.KAFKA_TOPIC_TASK_CREATED)
+async def handle_task_created(message: TaskMessage, session = Depends(get_session)):
 
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(User))
-        users = result.scalars().all()
-
-        notifications = [Notification(user_id=user.id, task_id=task_id) for user in users]
-
-        session.add_all(notifications)
-        await session.commit()
+    NotificationRepository.create_for_all_users(
+        session=session,
+        task_id=message.task_id
+)
