@@ -1,5 +1,8 @@
 from faststream.kafka import KafkaBroker
+import logging
 
 from src.config import settings
 
-broker = KafkaBroker(settings.KAFKA_URL)
+logger = logging.getLogger("kafka")
+
+broker = KafkaBroker(settings.KAFKA_URL, logger=logger)
