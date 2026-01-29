@@ -1,4 +1,3 @@
-# src/schemas/events.py
 from pydantic import BaseModel
 
 

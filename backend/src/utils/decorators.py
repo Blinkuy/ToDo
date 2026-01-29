@@ -1,6 +1,6 @@
 import functools
-import time
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -13,5 +13,6 @@ def log_execution_time(func):
             return await func(*args, **kwargs)
         finally:
             elapsed = time.perf_counter() - start
-            logger.info(f"Время выполнения {func.__qualname__} — {elapsed:.4f} сек")
+            logger.debug("Execution time of %s: %.4f seconds", func.__qualname__, elapsed)
+
     return wrapper

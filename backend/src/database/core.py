@@ -8,7 +8,6 @@ from src.utils.decorators import log_execution_time
 
 
 class TaskRepository:
-    
     @staticmethod
     @log_execution_time
     async def get_one_or_none(

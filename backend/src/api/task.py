@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,11 +8,11 @@ from src.database.deps import get_session
 from src.producer.task_producer import publish_task_create
 from src.schemas.task import TaskCreateRequest, TaskResponse
 from src.utils.errors import ErrorDetail
-import logging
 
 router = APIRouter(prefix="/task", tags=["Task"])
 
 logger = logging.getLogger(__name__)
+
 
 @router.get("/get_all", response_model=list[TaskResponse])
 async def get_tasks(

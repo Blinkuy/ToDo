@@ -1,8 +1,8 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import logging
 
 from src.api.notifications import router as notification_router
 from src.api.task import router as task_router
@@ -11,17 +11,19 @@ from src.broker import broker
 from src.config import settings
 from src.logger import setup_root_logger
 
-setup_root_logger()
+setup_root_logger(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Брокер проинициализирован")
+    logger.info("Broker started")
     await broker.start()
     yield
-    logger.info("Брокер остановлен")
+    logger.info("Broker stoped")
     await broker.stop()
+
 
 app = FastAPI(title="ToDoApp", lifespan=lifespan)
 

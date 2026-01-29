@@ -5,6 +5,7 @@ from pydantic import BaseModel
 T = TypeVar("T", bound="BaseSchema")
 M = TypeVar("M")
 
+
 class BaseSchema(BaseModel, Generic[M]):
     model_config = {
         "from_attributes": True,

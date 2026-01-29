@@ -8,9 +8,7 @@ router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
 
 @router.get("/")
-async def get_notifications(
-    session: AsyncSession = Depends(get_session)
-):
+async def get_notifications(session: AsyncSession = Depends(get_session)):
     notifications = await NotificationRepository.get_all(session=session)
 
     return notifications
