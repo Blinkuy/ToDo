@@ -5,7 +5,6 @@ from src.config import settings
 
 engine = create_async_engine(
     url=settings.DATABASE_URL,
-    echo=True,
 )
 
 AsyncSessionLocal = sessionmaker(

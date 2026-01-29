@@ -4,10 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.models import Notification, Task, User
 from src.schemas.task import TaskCreateRequest
 from src.schemas.user import UserCreateRequest
+from src.utils.decorators import log_execution_time
 
 
 class TaskRepository:
     @staticmethod
+    @log_execution_time
     async def get_one_or_none(
         session: AsyncSession,
         task_id: int,
@@ -17,6 +19,7 @@ class TaskRepository:
         return result.scalar_one_or_none()
 
     @staticmethod
+    @log_execution_time
     async def add_one(
         session: AsyncSession,
         task_data: TaskCreateRequest,
@@ -34,6 +37,7 @@ class TaskRepository:
         return task
 
     @staticmethod
+    @log_execution_time
     async def get_all_by_user_id(
         session: AsyncSession,
         user_id: int,
@@ -43,6 +47,7 @@ class TaskRepository:
         return result.scalars().all()
 
     @staticmethod
+    @log_execution_time
     async def delete_one(
         session: AsyncSession,
         task_id: int,
@@ -57,6 +62,7 @@ class TaskRepository:
 
 class UserRepository:
     @staticmethod
+    @log_execution_time
     async def get_one_or_none(
         user_id: int,
         session: AsyncSession,
@@ -67,6 +73,7 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     @staticmethod
+    @log_execution_time
     async def add_one(
         session: AsyncSession,
         user_data: UserCreateRequest,
@@ -82,6 +89,7 @@ class UserRepository:
         return user
 
     @staticmethod
+    @log_execution_time
     async def get_all(
         session: AsyncSession,
     ) -> list[User]:
@@ -93,10 +101,21 @@ class UserRepository:
 
 class NotificationRepository:
     @staticmethod
+    @log_execution_time
     async def get_all(
         session: AsyncSession,
-    ) -> list[User]:
+    ) -> list[Notification]:
         stmt = select(Notification)
         result = await session.execute(stmt)
-
         return result.scalars().all()
+
+    @staticmethod
+    @log_execution_time
+    async def create_for_all_users(
+        session: AsyncSession,
+        task_id: int,
+    ) -> None:
+        users = await UserRepository.get_all(session)
+        notifications = [Notification(user_id=user.id, task_id=task_id) for user in users]
+        session.add_all(notifications)
+        await session.commit()

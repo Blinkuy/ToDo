@@ -1,8 +1,7 @@
-from src.fs_broker import broker
+from src.broker import broker
+from src.config import settings
 
 
-async def publish_task_create(task_id: int) -> None:
-    await broker.publish(
-        {"task_id": task_id},
-        topic="task_created",
-    )
+@broker.publisher(topic=settings.KAFKA_TOPIC_TASK_CREATED)
+async def publish_task_create(task_id: int) -> dict:
+    return {"task_id": task_id}
